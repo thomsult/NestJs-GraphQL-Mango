@@ -1,8 +1,14 @@
-import { CanActivate, ExecutionContext } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  PipeTransform,
+} from '@nestjs/common';
 import { UnauthorizedException } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
 
 export class AuthGuard implements CanActivate {
+  public token: jwt;
   async canActivate(ctx: ExecutionContext) {
     const VerifyToken = (token: string) => {
       // do something async
@@ -20,7 +26,7 @@ export class AuthGuard implements CanActivate {
       const isAuthenticated = await new Promise<jwt>((resolve) => {
         const auth = req.headers.authorization.split(' ')[1];
         const token = VerifyToken(auth) as jwt;
-        console.log(token);
+        this.token = token;
         resolve(token);
       });
       req.user = isAuthenticated;
@@ -30,5 +36,17 @@ export class AuthGuard implements CanActivate {
       });
     }
     return true;
+  }
+}
+
+@Injectable()
+export class TokenEmail implements PipeTransform {
+  constructor(private authGuard: AuthGuard) {}
+  transform(value: string) {
+    if (value === undefined && this.authGuard.token.email) {
+      const { email } = this.authGuard.token;
+      return email;
+    }
+    return value;
   }
 }
