@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator nestgraphql {
+  provider = "node node_modules/prisma-nestjs-graphql"
+  // for yarn monorepos
+  // provider = "prisma-nestjs-graphql"
+  output   = "../src/@generated"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("MONGO_URI")
+}
+
+enum roleName {
+  ADMIN
+  USER
+}
+
+model role {
+  id    String  @id @default(auto()) @map("_id") @db.ObjectId
+  name  roleName @default(USER)
+  Users Users[] @relation("role")
+}
+
+model Users {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  email          String   @unique(map: "email_1")
+  /// @HideField({ output: true, input: true })
+  hashedPassword String   @default("local")
+  firstName      String   @default("John")
+  lastName       String   @default("Doe")
+  picture        String?
+  provider       String   @default("local")
+  providerId     String   @default("local")
+  roleId         String   @db.ObjectId
+  role           role     @relation("role", fields: [roleId], references: [id]) 
+  registeredAt   DateTime @default(now())
+  lastLogin      DateTime @default(now())
+
+  /// @HideField({ output: false, input: true })
+  Posts Posts[] @relation("author")
+}
+
+model Posts {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  content   String
+  author    Users    @relation("author", fields: [authorId], references: [id])
+  authorId  String   @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  published Boolean  @default(false)
+}

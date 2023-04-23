@@ -1,4 +1,4 @@
-import { Equals, IsEmail, IsNotEmpty, Length } from 'class-validator';
+import { IsEmail, IsNotEmpty, Length } from 'class-validator';
 
 import { Match } from '../decorator/match.decorator';
 import { IfExist } from '../decorator/ifExist.decorator';

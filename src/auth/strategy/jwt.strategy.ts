@@ -12,15 +12,21 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       secretOrKey: process.env.JWT_SECRET,
     });
   }
-  async validate(payload: any) {
-    if (payload.refresh_token) return false;
-    return await this.usersService
-      .findOneByEmail({
-        email: payload.email,
-      })
-      .then((user) => {
-        user.hashedPassword = undefined;
-        return user;
-      });
+  async validate(payload: {
+    email: string;
+    sub: string;
+    refresh_token?: string;
+  }) {
+    try {
+      if (payload.refresh_token) return false;
+      return await this.usersService
+        .find({ where: { email: payload.email } })
+        .then((user) => {
+          user.hashedPassword = undefined;
+          return user;
+        });
+    } catch (e) {
+      return false;
+    }
   }
 }

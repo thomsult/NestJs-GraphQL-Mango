@@ -25,11 +25,26 @@
 ## Description
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+[Prisma](https://www.prisma.io/) is used as ORM.
 
 ## Installation
+add .env file in root directory with following content
+```bash
+PORT=3000
+MONGO_URI= YOUR MONGO URI
+MONGO_DB_NAME= YOUR MONGO DB NAME
+JWT_SECRET= YOUR JWT SECRET
+GOOGLE_CLIENT_ID= YOUR GOOGLE CLIENT ID
+GOOGLE_SECRET= YOUR GOOGLE SECRET
+```
 
 ```bash
 $ npm install
+
+$ npx prisma migrate push
+
+$ npm run generate
+
 ```
 
 ## Running the app
@@ -58,16 +73,11 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
-## Support
+## Author
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- Author - [Thomsult]()
 
 ## License
 
 Nest is [MIT licensed](LICENSE).
+Prisma is [MIT licensed](LICENSE).
