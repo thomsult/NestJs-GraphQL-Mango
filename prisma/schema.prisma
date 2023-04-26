@@ -42,6 +42,9 @@ model Users {
 
   /// @HideField({ output: false, input: true })
   Posts Posts[] @relation("author")
+  /// @HideField({ output: true, input: true })
+  resetPasswordToken String?
+  marketingAccept Boolean @default(false)
 }
 
 model Posts {

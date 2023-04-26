@@ -14,6 +14,9 @@ export class AuthService {
   async SignUpPost(signUpDto: SignUpDto): Promise<AuthLogin> {
     const user = {
       email: signUpDto.email,
+      firstName: signUpDto.firstName,
+      lastName: signUpDto.lastName,
+      marketingAccept: signUpDto.marketingAccept || false,
       hashedPassword: await argon2.hash(signUpDto.password),
     };
     const res = await this.usersService.CreateUser(user);
@@ -42,12 +45,18 @@ export class AuthService {
     return null;
   }
 
-  async login(user: { email: string; userId: string }): Promise<AuthLogin> {
+  async login(user: {
+    email: string;
+    userId: string;
+    auto_login?: boolean;
+  }): Promise<AuthLogin> {
     const payload = { email: user.email, sub: user.userId };
     return {
       access_token: this.jwtService.sign(payload, {
         expiresIn: '1h',
       }),
+      expires_at: new Date().getTime() + 3600 * 1000,
+      auto_login: user.auto_login || false,
       refresh_token: this.jwtService.sign(
         {
           ...payload,
@@ -58,6 +67,64 @@ export class AuthService {
         },
       ),
     };
+  }
+
+  async FindUser(email: string) {
+    try {
+      const user = await this.usersService.find({ where: { email } });
+      if (user) {
+        return true;
+      }
+    } catch (error) {
+      return false;
+    }
+  }
+  async UpdatePassword(email: string, password: string) {
+    try {
+      const user = await this.usersService.find({ where: { email } });
+      if (user) {
+        const hashedPassword = await argon2.hash(password);
+        await this.usersService.UpdateUser({
+          where: { email },
+          data: { hashedPassword: hashedPassword },
+        });
+        this.DeleteToken(email);
+        return {
+          message: 'Password Updated',
+        };
+      }
+    } catch (error) {
+      return error;
+    }
+  }
+
+  async GenerateToken(email: string) {
+    const randomCode = Math.floor(100000 + Math.random() * 900000);
+    try {
+      this.usersService.UpdateUser({
+        where: { email },
+        data: { resetPasswordToken: randomCode },
+      });
+      return randomCode;
+    } catch (error) {}
+  }
+  async DeleteToken(email: string) {
+    try {
+      this.usersService.UpdateUser({
+        where: { email },
+        data: { resetPasswordToken: null },
+      });
+    } catch (error) {}
+  }
+  async GetToken(email: string) {
+    try {
+      const user = await this.usersService.find({ where: { email } });
+      if (user) {
+        return user.resetPasswordToken;
+      }
+    } catch (error) {
+      return null;
+    }
   }
 
   googleLogin(req): Promise<AuthLogin> | string {
@@ -80,6 +147,7 @@ export class AuthService {
       return this.login({
         email: payload.email,
         userId: payload.sub,
+
       });
     } catch (error) {
       throw new UnauthorizedException();

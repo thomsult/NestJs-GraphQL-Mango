@@ -5,4 +5,6 @@ export interface UserAuth {
 export interface AuthLogin {
   access_token: string;
   refresh_token: string;
+  expires_at: number;
+  auto_login: boolean;
 }

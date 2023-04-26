@@ -21,5 +21,9 @@ export class SignUpDto {
   @Match(SignUpDto, (s) => s.password, {
     message: 'Password confirmation does not match',
   })
-  passwordConfirmation: string;
+  password_confirmation: string;
+
+  firstName?: string;
+  lastName?: string;
+  marketingAccept?: boolean;
 }

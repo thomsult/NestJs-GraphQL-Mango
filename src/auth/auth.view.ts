@@ -30,7 +30,7 @@ export class AuthView {
         <a href="/auth/google">Login with Google</a>
         <p>or</p>
           <label for="email">Email</label>
-          <input type="email" name="username" id="email" />
+          <input type="email" name="email" id="email" />
           </div>
           <div>
           <label for="password">Password</label>

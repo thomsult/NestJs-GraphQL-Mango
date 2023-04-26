@@ -31,6 +31,10 @@ export class UsersService {
     const createdUser = await this.prisma.users.create(NewUser);
     return createdUser;
   }
+  async UpdateUser(userData): Promise<Users> {
+    return await this.prisma.users.update(userData);
+  }
+
   async RemoveUser(id: string): Promise<Users> {
     return await this.prisma.users.delete({ where: { id } });
   }
